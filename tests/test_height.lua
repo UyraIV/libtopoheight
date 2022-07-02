@@ -8,7 +8,7 @@ local LineString = helpers.LineString
 
 TestHeight = {}
 
-local polygon = Polygon { {0,0,100}, {1,0,200}, {1,1,300}, {0,1,400} }
+local polygon = MultiPoint { {0,0,100}, {1,0,200}, {1,1,300}, {0,1,400} }
 
 local test_cases = {
   --on edges

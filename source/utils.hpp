@@ -10,6 +10,8 @@
 namespace utils {
 
 struct Relief {
+  double minX=0,minY=0,maxX=0,maxY=0;
+  int count = 0;
   ctl::PointList points;
   std::vector<ctl::PointList> lineStrings;
   std::vector<ctl::PointList> polygons;
@@ -56,11 +58,18 @@ inline void get_point(const rapidjson::Value& arr,Relief& relief, const double* 
   if(!arr.IsArray()) return;
   double x=0.0, y=0.0, z=0.0;
   if( get_double(arr[0],x) && get_double(arr[1],y) ) {
+  
+    relief.count++;
+    if(x < relief.minX){relief.minX = x;}
+    if(x > relief.maxX){relief.maxX = x;}
+    if(y < relief.minY){relief.minY = y;}
+    if(y > relief.maxY){relief.maxY = y;}
+    
     if( prop_value ) {
       relief.points.push_back(ctl::Point(x,y,*prop_value)); 
       return;
     }
-    get_double(arr[2],z);
+    get_double(arr[2],z);  
     relief.points.push_back(ctl::Point(x,y,z));    
     return;
   }  
@@ -83,12 +92,20 @@ inline void get_lineString(const rapidjson::Value& arr,Relief& relief, const dou
   for(int i = 0; i < arr.Size(); i++) {
     get_double(arr[i][0],x);
     get_double(arr[i][1],y);
+    
+    relief.count++;
+    if(x < relief.minX){relief.minX = x;}
+    if(x > relief.maxX){relief.maxX = x;}
+    if(y < relief.minY){relief.minY = y;}
+    if(y > relief.maxY){relief.maxY = y;}
+    
     if( prop_value ) {
       lineString.push_back(ctl::Point(x,y,*prop_value));
     } else {
       get_double(arr[i][2],z);
       lineString.push_back(ctl::Point(x,y,z));
     }
+    
   }
   
   relief.lineStrings.push_back(lineString);
@@ -107,12 +124,20 @@ inline void get_polygon(const rapidjson::Value& arr,Relief& relief, const double
   for(int i = 0; i < arr.Size(); i++) {
     get_double(arr[i][0],x);
     get_double(arr[i][1],y);
+    
+    relief.count++;
+    if(x < relief.minX){relief.minX = x;}
+    if(x > relief.maxX){relief.maxX = x;}
+    if(y < relief.minY){relief.minY = y;}
+    if(y > relief.maxY){relief.maxY = y;}
+    
     if( prop_value ) {
       polygon.push_back(ctl::Point(x,y,*prop_value));
     } else {
       get_double(arr[i][2],z);
       polygon.push_back(ctl::Point(x,y,z));
     }
+    //std::cout << "\n" << x << " " << y << " " << z;
   }
     
   relief.polygons.push_back(polygon);
@@ -134,12 +159,11 @@ inline Relief get_geo_json_points(std::string const& json, std::string const& pr
 	const rapidjson::Value& coordinates = feature["geometry"]["coordinates"];
         if( feature["geometry"] ["type"] == "Polygon"){
           if( has_prop || prop.empty() ) {
-	  //add_points(coordinates,relief,has_prop ? &prop_value : NULL);
 	  get_polygon(coordinates,relief,has_prop ? &prop_value : NULL);
+	  //get_lineString(coordinates,relief,has_prop ? &prop_value : NULL);
 	  }          
         } else if( feature["geometry"] ["type"] == "LineString") {
           if( has_prop || prop.empty()){
-	  //add_points(coordinates,relief,has_prop ? &prop_value : NULL);
 	  get_lineString(coordinates,relief,has_prop ? &prop_value : NULL);
 	  }
         } else {

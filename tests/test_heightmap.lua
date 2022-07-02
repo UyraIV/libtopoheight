@@ -32,18 +32,17 @@ function TestHeightmap:testPolygon_WithColorCallback()
   local obj = libtopoheight.new()
   assertNotIsNil(obj)
 
-  local src_data = {
+  --[[local src_data = {
     Polygon { {0,0,200}, {10,0,200}, {10,10,200}, {0,10,200} },
     LineString({ {2, 2, 0}, {8, 8, 0} }),
-    MultiPoint({ {4, 6, 400} }),
-    MultiPoint({ {6, 4, 400} }),
+    MultiPoint({ {7, 3, 400} }),
+    MultiPoint({ {3, 7, 400} }),
   }
+  local rc = obj:load_buffer(Layer(src_data))--]]
 
-  local rc = obj:load_buffer(Layer(src_data))
-
-  --[[local rc = obj:load_buffer( Layer {
-    --Polygon { {0,0,100}, {10,0,200}, {10,10,300}, {0,10,400} }
-  })--]]
+  local rc = obj:load_buffer( Layer {
+    MultiPoint { {0,0,100}, {10,0,200}, {10,10,300}, {0,10,400} }
+  })
   assertEquals(rc,0)
 
   local coords, altitudes, triangles = obj:debug_get_counts()
@@ -71,11 +70,11 @@ function TestHeightmap:testPolygon_WithColorCallback()
     return 0
   end
 
-  local rc = obj:get_heightmap({0,0,10,10},1024,1024,"2.png",get_altitude_color)
+  local rc = obj:get_heightmap({0,0,10,10},562,562,"2.png",get_altitude_color)
   --assertEquals(rc,0)
 
   local str = helpers.dump_altitude_matrix(obj,{0,10,1},{0,10,1})
-  --print(str)
+  --print("\n",str)
 --[[  assertEquals(str,[[
 400 400 400 400 400 400 400 400 400 400 300
 400 352 334 319 308 300 296 294 294 300 300

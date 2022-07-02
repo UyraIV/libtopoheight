@@ -94,29 +94,33 @@ int libtopoheight_triangulate(struct context* ctx) {
   ctx->dt = NULL;
   //выполнение триангуляции
   try {
-    double minX = -100;
-    double minY = -100;
-    double maxX = 100;
-    double maxY = 100;
+    double minX = ctx->relief.minX;
+    double minY = ctx->relief.minY;
+    double maxX = ctx->relief.maxX;
+    double maxY = ctx->relief.maxY;
     ctl::PointList boundary;
     boundary.push_back(ctl::Point(minX, minY));
     boundary.push_back(ctl::Point(maxX, minY));
     boundary.push_back(ctl::Point(maxX, maxY));
     boundary.push_back(ctl::Point(minX, maxY));
-
+        
     ctl::DelaunayTriangulation *dt = new ctl::DelaunayTriangulation(boundary);
     ctx->dt = new ctl::DelaunayTriangulation(boundary);
-   
+    //ctx->dt->Enable( ctl::DelaunayTriangulation::INTERPOLATE_EDGES );  
+    
     for (int i; i < ctx->relief.points.size(); i++){
-      ctx->dt->InsertConstrainedPoint(ctx->relief.points[i]);
+      ctx->dt->InsertConstrainedPoint(ctx->relief.points[i]);  
     }
+    
+    //std::cout << "\n" << ctx->relief.polygons.size();  
+        
     for (int i; i < ctx->relief.lineStrings.size(); i++){
       ctx->dt->InsertConstrainedLineString(ctx->relief.lineStrings[i]);
     }
+        
     for (int i; i < ctx->relief.polygons.size(); i++){
       ctx->dt->InsertConstrainedPolygon(ctx->relief.polygons[i]);
     }
-    
     
   }
   catch(std::runtime_error& err) {
@@ -131,7 +135,6 @@ int libtopoheight_triangulate(struct context* ctx) {
   for(size_t i=0; i<tin.triangles.size(); i++) {
     //получение координат и высот в вершинах треугольника
     get_triangle(ctx, i, points, alts);
-
 #if 0
     std::cout << "\n" << ctx->cdt->vertices[triangles[i].vertices[0]].x;	
     std::cout << "\n" << triangles[i].vertices[0];	
@@ -279,8 +282,8 @@ void libtopoheight_debug_get_counts(struct context* ctx,size_t counts[3]) {
   counts[1] = ctx->relief.altitudes.size();
   ctl::TIN tin(ctx->dt);
   counts[2] = ctx->dt ? tin.triangles.size()*3 : 0;*/
-  counts[0] = 0;
-  counts[1] = 0;
+  counts[0] = ctx->relief.count*2;
+  counts[1] = ctx->relief.count;
   counts[2] = 0; 
 }
 
